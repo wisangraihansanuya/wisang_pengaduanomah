@@ -15,7 +15,7 @@
                                             <th>Nama</th>
                                             <th>Username</th>
                                             <th>No.Telepon</th>
-                                            <th>Tindakan</th>
+                                            <!-- <th>Tindakan</th> -->
                                         </tr>
                                     </thead>
                                     <?php $i = 1 ?>
@@ -28,10 +28,10 @@
                                             <td><?= $al['nama'] ?></td>
                                             <td><?= $al['username'] ?></td>
                                             <td><?= $al['no_telp'] ?></td>
-                                            <td>
+                                            <!-- <td>
                                                 <a href="#" class="btn btn btn-warning"><i class="fas fa-undo"></i></a>
                                                 <a href="#" class="btn btn btn-danger"><i class="fas fa-lock"></i></a>
-                                            </td>
+                                            </td> -->
                                         </tr>
                                     <?php $i++;
                                     endforeach ?>
@@ -41,7 +41,7 @@
                                             <th>Nama</th>
                                             <th>Username</th>
                                             <th>No.Telepon</th>
-                                            <th>Tindakan</th>
+                                            <!-- <th>Tindakan</th> -->
                                         </tr>
                                     </tfoot>
                                 </table>

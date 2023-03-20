@@ -84,7 +84,7 @@ class c_login_admin extends CI_Controller
         $data['title'] = 'Home Page';
         $data['user'] = $this->db->get_where('petugas', ['username' => $this->session->userdata('username')])->row_array();
         $data['pengaduan'] = $this->db->get('pengaduan')->result_array();
-        
+
         $this->load->model('m_wisang_kategori');
         $data['kategori'] = $this->m_wisang_kategori->kategori()->result_array();
         $this->load->model('m_wisang_kategori');
@@ -124,10 +124,10 @@ class c_login_admin extends CI_Controller
     {
         $data = array(
             'id_kategori' => $this->input->post('kategori'),
-            'sub_kategori' => $this->input->post('sub_kategori')
+            'subkategori' => $this->input->post('sub_kategori')
         );
 
-        $this->db->insert('sub_kategori', $data);
+        $this->db->insert('subkategori', $data);
         // echo "trest";
         redirect('C_login_admin/kategori');
     }
@@ -193,32 +193,93 @@ class c_login_admin extends CI_Controller
         $this->db->update('sub_kategori', $update);
         redirect('C_login_admin/kategori');
     }
-    
-    public function user_suspend($id)
-	{
-		$suspend= [
-			'user_status'=>'dormant',
-		];
 
-		$this->db->where('id', $id);
-		$this->M_basicModel->suspend($suspend);
-		$this->session->set_flashdata('message', '<div class="alert alert-warning" role="alert">
+    public function user_suspend($id)
+    {
+        $suspend = [
+            'user_status' => 'dormant',
+        ];
+
+        $this->db->where('id', $id);
+        $this->M_basicModel->suspend($suspend);
+        $this->session->set_flashdata('message', '<div class="alert alert-warning" role="alert">
 		Account successfully suspended! 
 		</div>');
-		redirect('C_View/userlist');
-	}
+        redirect('C_View/userlist');
+    }
 
-	public function user_unsuspend($id)
-	{
-		$unsuspend= [
-			'user_status'=>'active',
-		];
+    public function user_unsuspend($id)
+    {
+        $unsuspend = [
+            'user_status' => 'active',
+        ];
 
-		$this->db->where('id', $id);
-		$this->M_basicModel->unsuspend($unsuspend);
-		$this->session->set_flashdata('message', '<div class="alert alert-warning" role="alert">
+        $this->db->where('id', $id);
+        $this->M_basicModel->unsuspend($unsuspend);
+        $this->session->set_flashdata('message', '<div class="alert alert-warning" role="alert">
 		Account successfully activated! 
 		</div>');
-		redirect('C_View/userlist');
+        redirect('C_View/userlist');
+    }
+
+    public function laporan_pdf()
+    {
+
+        $data['pengaduan'] = $this->db->get_where('pengaduan', ['nik' => $this->session->userdata('nik')])->row_array();
+        $data['pengaduan'] = $this->db->get('pengaduan')->result_array();
+
+        $this->load->library('pdf');
+
+        $this->pdf->setPaper('A4', 'potrait');
+        $this->pdf->filename = "laporan-petanikode.pdf";
+        $this->pdf->load_view('laporan_pdf', $data);
+    }
+
+    public function tindakan($id)
+	{
+		$data = $this->m_wisang_tanggap->userData($this->session->userdata('username'))->row_array();
+
+		$tanggapan = $this->input->post('tanggapan');
+		$status = $this->input->post('status');
+
+
+		$add = [
+
+			'id_pengaduan' => $id,
+			'tanggapan' => $tanggapan,
+			'tanggal_tanggapan' =>  date('Y-m-d'),
+			'id_petugas' => $data['id_petugas'],
+			// 'status' => $status,
+		];
+
+		$update = [
+			'status' => $status
+		];
+
+		$this->db->where('id_pengaduan', $id);
+		$this->db->update('pengaduan', $update);
+
+		$this->m_wisang_join->tambahTindakan($add);
+		$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">
+			Berhasil mengirim tanggapan !
+			  </div>');
+		redirect('c_login_admin/pengaduan');
 	}
+
+    public function tanggapan($id)
+    {
+
+        $data['user'] = $this->m_wisang_tanggap->userData($this->session->userdata('username'))->row_array();
+        $data['masyarakat'] = $this->m_wisang_tanggap->masyarakat()->result_array();
+        $data['petugas'] = $this->m_wisang_tanggap->petugas()->result_array();
+        $data['tanggapan'] = $this->m_wisang_tanggap->tanggapan($id)->row_array();
+        $data['tanggapanPetugas'] = $this->m_wisang_tanggap->tanggapanPetugas($id)->row_array();
+
+        $data['title'] = 'Tanggapan';
+        $this->load->view('templates/temp_home_admin/header', $data);
+        $this->load->view('templates/temp_home_admin/topbar', $data);
+        $this->load->view('templates/temp_home_admin/sidebar', $data);
+        $this->load->view('home_admin/tanggapan', $data);
+        $this->load->view('templates/temp_home_admin/footer', $data);
+    }
 }

@@ -16,7 +16,7 @@ class m_wisang_join extends CI_Model {
         $this->db->select('*');
         $this->db->FROM('pengaduan');
         $this->db->JOIN('masyarakat','pengaduan.id_pengaduan=masyarakat.id');
-        // $this->db->JOIN('kategori','kategori.id=id_kategori.sub_kategori');
+        $this->db->JOIN('kategori','kategori.id=id_kategori.sub_kategori');
         return $this->db->get();
     }
 
